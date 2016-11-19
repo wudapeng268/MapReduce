@@ -28,21 +28,21 @@ public class PreLine {
 
         public void map(LongWritable offset, Text values, Context context) throws IOException,InterruptedException{
             String[] t=values.toString().split(" ");
-            String Svalue =t[1];
-            String Skey = t[0];
+            LongString Svalue =new LongString(t[1]);
+            LongString Skey = new LongString(t[0]);
             if (Skey.equals(Svalue))
                 return;
             if (Skey.compareTo(Svalue)>0) {
-                String temp = Svalue;
+                LongString temp = Svalue;
                 Svalue = Skey;
                 Skey = temp;
             }
-            context.write(new Text(Skey+""),new Text(Svalue+""));
+            context.write(new Text(Skey.value+""),new Text(Svalue.value+""));
 
         }
     } //end map class
 
-    //归并成单源的路径 e.g  1->2,3,5,7,8
+    //归并成单源的路径 e.g  1->2;3,5,7,8
     public static class InvertedIndexReduce extends Reducer<Text, Text, Text, Text> {
 
         private Set<String> result = new HashSet<String>();
@@ -60,11 +60,12 @@ public class PreLine {
             StringBuilder sb = new StringBuilder();
             while(iter.hasNext()){
                 sb.append(iter.next().value);{
-                    sb.append(" ");
+                    sb.append(";");
                 }
             }
             sb.deleteCharAt(sb.length() - 1);
             context.write(key, new Text(sb.toString()));
+//            System.out.println(sb.toString());
 //            String tempKey = key.toString();
 //            keyTerm.set(tempKey);
 //            if(!currentWord.equals(keyTerm) && !currentWord.equals(" ")){

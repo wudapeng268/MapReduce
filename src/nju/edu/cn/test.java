@@ -43,7 +43,7 @@ public class test {
 //        System.out.println(Arrays.toString(aim));
 //        Arrays.sort(aim);
 //        System.out.println(Arrays.toString(aim));
-//        System.out.println("123".compareTo("123"));
+        System.out.println(new LongString("56375803").compareTo(new LongString("745823")));
     }
     private static ArrayList<String> containTwo(ArrayList<String> list)
     {
