@@ -52,23 +52,36 @@ public class PreLine {
         @Override
         protected void reduce(Text key,Iterable<Text> values, Context context) throws IOException, InterruptedException {
             //getkey
-            String tempKey = key.toString();
-            keyTerm.set(tempKey);
-            if(!currentWord.equals(keyTerm) && !currentWord.equals(" ")){
-                // need to reset var
-                StringBuffer out = new StringBuffer();
-                for (String pos:result){
-                    out.append(pos+";");
+            TreeSet<LongString> valueSet = new TreeSet<LongString>();
+            for(Text value: values){
+                valueSet.add(new LongString(value.toString()));
+            }
+            Iterator<LongString> iter = valueSet.iterator();
+            StringBuilder sb = new StringBuilder();
+            while(iter.hasNext()){
+                sb.append(iter.next().value);{
+                    sb.append(" ");
                 }
-
-                context.write(currentWord, new Text(out.toString()));
-                result = new HashSet<String>();
             }
-            currentWord.set(keyTerm);
-            for(Text val:values)
-            {
-                result.add(val.toString());
-            }
+            sb.deleteCharAt(sb.length() - 1);
+            context.write(key, new Text(sb.toString()));
+//            String tempKey = key.toString();
+//            keyTerm.set(tempKey);
+//            if(!currentWord.equals(keyTerm) && !currentWord.equals(" ")){
+//                // need to reset var
+//                StringBuffer out = new StringBuffer();
+//                for (String pos:result){
+//                    out.append(pos+";");
+//                }
+//
+//                context.write(currentWord, new Text(out.toString()));
+//                result = new HashSet<String>();
+//            }
+//            currentWord.set(keyTerm);
+//            for(Text val:values)
+//            {
+//                result.add(val.toString());
+//            }
         }
 
         @Override
@@ -91,6 +104,9 @@ public class PreLine {
         @Override
         protected void reduce(Text key,Iterable<Text> values, Context context) throws IOException, InterruptedException {
             //getkey
+
+
+            TreeSet<LongString> valueSet = new TreeSet<LongString>();
             String tempKey = key.toString();
             keyTerm.set(tempKey);
             currentWord.set(keyTerm);
@@ -101,9 +117,15 @@ public class PreLine {
 
             result = containTwo(result);
 
+            for(String s : result)
+            {
+                valueSet.add(new LongString(s));
+            }
+
+
             StringBuffer out = new StringBuffer();
-            for (String pos:result){
-                out.append(pos+";");
+            for (LongString pos : valueSet){
+                out.append(pos.value+";");
             }
 
             context.write(currentWord, new Text(out.toString()));
@@ -152,8 +174,9 @@ public class PreLine {
             job.setJarByClass(PreLine.class);
 
             job.setMapperClass(ExchangeMapper.class);
-            job.setReducerClass(AndInvertedIndexReduce.class);
-//            job.setReducerClass(InvertedIndexReduce.class);
+//            job.setReducerClass(AndInvertedIndexReduce.class);
+            job.setReducerClass(InvertedIndexReduce.class);
+            job.setNumReduceTasks(30);
 
             //设置映射Map输出类型
             job.setMapOutputKeyClass(Text.class);

@@ -116,6 +116,8 @@ public class GetCount {
             job.setCombinerClass(CombinerKey.class);
             job.setReducerClass(SumCount.class);
 
+            job.setNumReduceTasks(30);
+
             //设置映射Map输出类型
             job.setMapOutputKeyClass(Text.class);
             job.setMapOutputValueClass(IntWritable.class);
